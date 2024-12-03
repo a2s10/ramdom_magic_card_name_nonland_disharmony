@@ -157,16 +157,27 @@ body {
     menu.style.display = 'none';
   });
 
-  // 右クリックでメニュー表示
-  container.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    if (e.target.classList.contains('card')) {
-      targetCard = e.target; // 操作対象カードを設定
-      menu.style.top = `${e.clientY}px`;
-      menu.style.left = `${e.clientX}px`;
-      menu.style.display = 'block';
+container.addEventListener('touchstart', (e) => {
+    // タッチポイントが2つであることを確認
+    if (e.touches.length === 2 && e.target.classList.contains('card')) {
+        e.preventDefault();
+        targetCard = e.target; // 操作対象カードを設定
+
+        // メニューを二本指タッチ位置の中央に表示
+        const x = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        menu.style.top = `${y}px`;
+        menu.style.left = `${x}px`;
+        menu.style.display = 'block';
     }
-  });
+});
+
+container.addEventListener('touchend', (e) => {
+    // 全てのタッチが終了した場合、メニューを非表示にする
+    if (e.touches.length === 0) {
+        menu.style.display = 'none';
+    }
+});
 
   // メニュー操作
   menu.addEventListener('click', (e) => {

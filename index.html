@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Game Fully Specified</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0;
+    width: 90vw;
+    height: 90vh;
+  }
+  .card {
+    background-color: lightgray;
+    border: 1px solid black;
+    aspect-ratio: 63 / 88;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    overflow: hidden;
+    background-size: contain; /* 縦横比を維持して全体表示 */
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  .menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+  }
+  .menu-item:last-child {
+    border-bottom: none;
+  }
+  .menu-item:hover {
+    background-color: #f0f0f0;
+  }
+  .submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .menu-item:hover .submenu {
+    display: block;
+  }
+  .submenu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+  }
+  .submenu-item:last-child {
+    border-bottom: none;
+  }
+  .submenu-item:hover {
+    background-color: #f0f0f0;
+  }
+  .stamp {
+  position: absolute;
+  width: 85px; /* スタンプの幅 */
+  height: 85px; /* スタンプの高さ */
+  font-size: 70px; /* スタンプ内の文字サイズ */
+  font-weight: bold;
+  color: black; /* デフォルトの文字色 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%; /* 丸い形状 */
+  background-color: white; /* 背景を白に設定 */
+}
+.stamp.battlefield {
+  color: blue; /* 戦場スタンプの文字色を青に設定 */
+  top: 20%; /* カード上部からの位置 */
+  left: 10%; /* カード左端からの位置 */
+}
+.stamp.tap {
+  color: red; /* タップスタンプの文字色を赤に設定 */
+  top: 20%; /* カード上部からの位置 */
+  right: 10%; /* カード右端からの位置 */
+}
+body {
+  -webkit-touch-callout: none; /* iOSでのタッチメニュー無効化 */
+}
+
+
+</style>
+</head>
+<body>
+<div class="container" id="card-container">
+  <div class="card" id="card-1"></div>
+  <div class="card" id="card-2"></div>
+  <div class="card" id="card-3"></div>
+  <div class="card" id="card-4"></div>
+  <div class="card" id="card-5"></div>
+  <div class="card" id="card-6"></div>
+  <div class="card" id="card-7"></div>
+  <div class="card" id="card-8"></div>
+  <div class="card" id="card-9"></div>
+  <div class="card" id="card-10"></div>
+</div>
+
+<div class="menu" id="context-menu">
+  <div class="menu-item" data-action="create">創造</div>
+  <div class="menu-item" data-action="delete">消去</div>
+  <div class="menu-item" data-action="move">移動
+    <div class="submenu">
+      <div class="submenu-item" data-move-to="1">1</div>
+      <div class="submenu-item" data-move-to="2">2</div>
+      <div class="submenu-item" data-move-to="3">3</div>
+      <div class="submenu-item" data-move-to="4">4</div>
+      <div class="submenu-item" data-move-to="5">5</div>
+      <div class="submenu-item" data-move-to="6">6</div>
+      <div class="submenu-item" data-move-to="7">7</div>
+      <div class="submenu-item" data-move-to="8">8</div>
+      <div class="submenu-item" data-move-to="9">9</div>
+      <div class="submenu-item" data-move-to="10">10</div>
+    </div>
+  </div>
+  <div class="menu-item" data-action="battlefield">戦場</div>
+  <div class="menu-item" data-action="tap">タップ</div>
+  <div class="menu-item" data-action="clear-battlefield">すべての戦場スタンプを消す</div>
+  <div class="menu-item" data-action="clear-tap">すべてのタップスタンプを消す</div>
+</div>
+
+<script>
+  const container = document.getElementById('card-container');
+  const menu = document.getElementById('context-menu');
+  let lastRequestTime = 0;
+
+  // メニューを閉じる
+  document.addEventListener('click', () => {
+    menu.style.display = 'none';
+  });
+
+  // 右クリックでメニュー表示
+  container.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains('card')) {
+      targetCard = e.target; // 操作対象カードを設定
+      menu.style.top = `${e.clientY}px`;
+      menu.style.left = `${e.clientX}px`;
+      menu.style.display = 'block';
+    }
+  });
+
+  // メニュー操作
+  menu.addEventListener('click', (e) => {
+    const action = e.target.getAttribute('data-action');
+    const moveTo = e.target.getAttribute('data-move-to');
+
+    if (!action && !moveTo) return;
+
+    if (action === 'create') {
+      createCard();
+    } else if (action === 'delete' && targetCard) {
+      deleteCard(targetCard);
+    } else if (moveTo && targetCard) {
+      moveCard(targetCard, parseInt(moveTo));
+    } else if (action === 'battlefield' && targetCard) {
+      toggleStamp(targetCard, 'battlefield');
+    } else if (action === 'tap' && targetCard) {
+      toggleStamp(targetCard, 'tap');
+    } else if (action === 'clear-battlefield') {
+      clearAllStamps('battlefield');
+    } else if (action === 'clear-tap') {
+      clearAllStamps('tap');
+    }
+    menu.style.display = 'none';
+  });
+
+  // ランダムカードを取得し、スロットに反映
+  async function fetchRandomCard() {
+    const currentTime = Date.now();
+    if (currentTime - lastRequestTime < 10000) {
+      console.log("通信は10秒間隔で行えます。次の通信までお待ちください。");
+      return null;
+    }
+    lastRequestTime = currentTime;
+
+    const apiUrl = `https://api.scryfall.com/cards/random`;
+
+    try {
+      console.log("通信中...");
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error('カード情報の取得に失敗しました');
+      }
+
+      const cardData = await response.json();
+      const imageUrl = cardData.image_uris?.normal || cardData.image_uris?.art_crop || cardData.image_uris?.border_crop;
+
+      if (!imageUrl) {
+        throw new Error('画像情報が見つかりません');
+      }
+
+      return { name: cardData.name, imageUrl };
+    } catch (error) {
+      console.error(`エラー: ${error.message}`);
+      return null;
+    }
+  }
+
+  // 創造機能
+  async function createCard() {
+    const cardSlots = [...container.children];
+    const cardData = await fetchRandomCard();
+    if (!cardData) return;
+
+    // スロットを後ろにスライド
+    for (let i = cardSlots.length - 1; i > 0; i--) {
+      cardSlots[i].style.backgroundImage = cardSlots[i - 1].style.backgroundImage;
+      cardSlots[i].innerHTML = cardSlots[i - 1].innerHTML;
+    }
+
+    // 1番目のスロットに新しいカードを表示
+    const firstSlot = cardSlots[0];
+    firstSlot.style.backgroundImage = `url(${cardData.imageUrl})`;
+    firstSlot.innerHTML = `<span style="position: absolute; bottom: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 2px 5px; cursor: pointer;" ondblclick="window.open('https://www.google.com/search?q=${encodeURIComponent(cardData.name)}', '_blank');">${cardData.name}</span>`;
+  }
+
+  // その他機能（消去、移動、スタンプ操作）は既存仕様を保持
+  // 消去機能
+  function deleteCard(card) {
+    const cardSlots = [...container.children];
+   
+    const index = cardSlots.indexOf(card);
+
+    if (index === 0) {
+      card.innerHTML = '';
+      card.style.backgroundImage = '';
+      return;
+    }
+
+    for (let i = index; i < cardSlots.length - 1; i++) {
+      cardSlots[i].style.backgroundImage = cardSlots[i + 1].style.backgroundImage;
+      cardSlots[i].innerHTML = cardSlots[i + 1].innerHTML;
+    }
+    cardSlots[cardSlots.length - 1].style.backgroundImage = '';
+    cardSlots[cardSlots.length - 1].innerHTML = '';
+  }
+
+  // 移動機能
+  function moveCard(card, moveTo) {
+    const cardSlots = [...container.children];
+    const targetSlot = cardSlots[moveTo - 1];
+
+    if (targetSlot.style.backgroundImage) {
+      for (let i = cardSlots.length - 1; i >= moveTo; i--) {
+        cardSlots[i].style.backgroundImage = cardSlots[i - 1].style.backgroundImage;
+        cardSlots[i].innerHTML = cardSlots[i - 1].innerHTML;
+      }
+    }
+
+    targetSlot.style.backgroundImage = card.style.backgroundImage;
+    targetSlot.innerHTML = card.innerHTML;
+    card.style.backgroundImage = '';
+    card.innerHTML = '';
+  }
+
+  // スタンプ切り替え
+  function toggleStamp(card, type) {
+    const stamp = card.querySelector(`.stamp.${type}`);
+    if (stamp) {
+      stamp.style.display = stamp.style.display === 'none' ? 'flex' : 'none';
+    } else {
+      const newStamp = document.createElement('div');
+      newStamp.classList.add('stamp', type);
+      newStamp.textContent = type === 'battlefield' ? '戦' : 'T';
+      card.appendChild(newStamp);
+    }
+  }
+
+  // すべてのカードからスタンプを消す
+  function clearAllStamps(type) {
+    const cardSlots = [...container.children];
+    cardSlots.forEach(card => {
+      const stamp = card.querySelector(`.stamp.${type}`);
+      if (stamp) {
+        card.removeChild(stamp);
+      }
+    });
+  }
+</script>
+<script>
+  const element = document.getElementById('some-element');
+
+  // 左クリック（タップ）対応
+  element.addEventListener('click', () => {
+      console.log('シングルタップ: 左クリック相当');
+  });
+
+  // ダブルクリック（ダブルタップ）対応
+  element.addEventListener('dblclick', () => {
+      console.log('ダブルタップ: ダブルクリック相当');
+  });
+
+  // 右クリック（長押し）対応
+  element.addEventListener('contextmenu', (e) => {
+      e.preventDefault(); // デフォルトの右クリックメニューを防ぐ
+      console.log('長押し: 右クリック相当');
+  });
+</script>
+</body>
+</html>

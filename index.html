@@ -247,7 +247,7 @@ container.addEventListener('touchstart', (e) => {
     // 1番目のスロットに新しいカードを表示
     const firstSlot = cardSlots[0];
     firstSlot.style.backgroundImage = `url(${cardData.imageUrl})`;
-    firstSlot.innerHTML = `<span style="position: absolute; bottom: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 2px 5px; cursor: pointer;" ondblclick="window.open('https://www.google.com/search?q=${encodeURIComponent(cardData.name)}', '_blank');">${cardData.name}</span>`;
+    firstSlot.innerHTML = `<span style="position: absolute; bottom: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 2px 5px; cursor: pointer;" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(cardData.name)}', '_blank');">${cardData.name}</span>`;
   }
 
   // その他機能（消去、移動、スタンプ操作）は既存仕様を保持
@@ -316,21 +316,6 @@ container.addEventListener('touchstart', (e) => {
 <script>
   const element = document.getElementById('some-element');
 
-  // 左クリック（タップ）対応
-  element.addEventListener('click', () => {
-      console.log('シングルタップ: 左クリック相当');
-  });
-
-  // ダブルクリック（ダブルタップ）対応
-  element.addEventListener('dblclick', () => {
-      console.log('ダブルタップ: ダブルクリック相当');
-  });
-
-  // 右クリック（長押し）対応
-  element.addEventListener('contextmenu', (e) => {
-      e.preventDefault(); // デフォルトの右クリックメニューを防ぐ
-      console.log('長押し: 右クリック相当');
-  });
 </script>
 </body>
 </html>

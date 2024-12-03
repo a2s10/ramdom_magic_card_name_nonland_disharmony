@@ -321,7 +321,7 @@ container.addEventListener('touchstart', (e) => {
       const nameElement = card.querySelector('span'); // <span> 要素を取得
       if (nameElement) {
           const cardName = nameElement.textContent.trim(); // カード名を取得
-          const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(cardName mtg)}`;
+          const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(cardName+" mtg")}`;
           window.open(searchUrl, '_blank'); // 別タブで検索結果を開く
       } else {
           console.error('カード名が見つかりません');

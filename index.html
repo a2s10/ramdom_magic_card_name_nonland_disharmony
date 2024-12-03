@@ -157,16 +157,23 @@ body {
     menu.style.display = 'none';
   });
 
-    // タッチでメニュー表示
-  container.addEventListener('touchstart', (e) => {
+container.addEventListener('touchstart', (e) => {
     e.preventDefault();
     if (e.target.classList.contains('card')) {
-      targetCard = e.target; // 操作対象カードを設定
-      menu.style.top = `${e.clientY}px`;
-      menu.style.left = `${e.clientX}px`;
-      menu.style.display = 'block';
+        targetCard = e.target; // 操作対象カードを設定
+
+        // タッチされた最初の指の位置を取得
+        const touch = e.touches[0];
+        const x = touch.clientX; // タッチしたX座標
+        const y = touch.clientY; // タッチしたY座標
+
+        // メニューをタッチ位置に配置
+        menu.style.top = `${y}px`;
+        menu.style.left = `${x}px`;
+        menu.style.display = 'block';
     }
-  });
+});
+
 
   // メニュー操作
   menu.addEventListener('click', (e) => {

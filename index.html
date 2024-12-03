@@ -143,8 +143,9 @@ body {
   </div>
   <div class="menu-item" data-action="battlefield">戦場</div>
   <div class="menu-item" data-action="tap">タップ</div>
+    <div class="menu-item" data-action="clear-tap">すべてのタップスタンプを消す</div>
   <div class="menu-item" data-action="clear-battlefield">すべての戦場スタンプを消す</div>
-  <div class="menu-item" data-action="clear-tap">すべてのタップスタンプを消す</div>
+  <div class="menu-item" data-action="google-search">検索</div>
 </div>
 
 <script>
@@ -196,6 +197,8 @@ container.addEventListener('touchstart', (e) => {
       clearAllStamps('battlefield');
     } else if (action === 'clear-tap') {
       clearAllStamps('tap');
+    }else if (action === 'google-search' && targetCard) {
+      googleSearch(targetCard);
     }
     menu.style.display = 'none';
   });
@@ -247,7 +250,7 @@ container.addEventListener('touchstart', (e) => {
     // 1番目のスロットに新しいカードを表示
     const firstSlot = cardSlots[0];
     firstSlot.style.backgroundImage = `url(${cardData.imageUrl})`;
-    firstSlot.innerHTML = `<span style="position: absolute; bottom: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 2px 5px; cursor: pointer;" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(cardData.name)}', '_blank');">${cardData.name}</span>`;
+    firstSlot.innerHTML = `<span style="position: absolute; bottom: 5px; background: rgba(0, 0, 0, 0.5); color: white; padding: 2px 5px; cursor: pointer;" >${cardData.name}</span>`;
   }
 
   // その他機能（消去、移動、スタンプ操作）は既存仕様を保持
@@ -312,6 +315,11 @@ container.addEventListener('touchstart', (e) => {
       }
     });
   }
+  // グーグル検索
+  function googleSearch(card) {
+      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(card.name)}`;
+      window.open(searchUrl, '_blank'); // 別タブで開く
+  } 
 </script>
 <script>
   const element = document.getElementById('some-element');

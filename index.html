@@ -317,6 +317,7 @@ container.addEventListener('touchstart', (e) => {
   }
   // グーグル検索
   function googleSearch(card) {
+      console.log(card);
       const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(card.name)}`;
       window.open(searchUrl, '_blank'); // 別タブで開く
   } 

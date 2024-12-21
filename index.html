@@ -15,11 +15,11 @@
   }
   .container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 0;
-    width: calc(100vw - 20px);
-    height: calc(100vh - 20px);
+    grid-template-columns: repeat(4, 1fr); /* 列数を4に変更 */
+    grid-template-rows: repeat(2, 1fr);   /* 行数はそのまま2 */
+    gap: 10px; /* カード間に少し余白を追加 */
+    width: calc(100vw - 20px); /* コンテナ全体の幅を画面幅に収める */
+    height: calc(100vh - 20px); /* コンテナ全体の高さを画面高さに収める */
   }
   .card {
     background-color: lightgray;
